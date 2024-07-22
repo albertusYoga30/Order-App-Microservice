@@ -20,11 +20,6 @@ public class OrderServiceApplication {
         SpringApplication.run(OrderServiceApplication.class, args);
     }
 
-//    @Bean
-//    @LoadBalanced
-//    RestTemplate restTemplate() {
-//        return new RestTemplate();
-//    }
 
     @Autowired
     private LoadBalancedExchangeFilterFunction loadBalancedExchangeFilterFunction;
