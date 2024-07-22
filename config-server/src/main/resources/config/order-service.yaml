@@ -26,3 +26,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
