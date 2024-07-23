@@ -1,6 +1,5 @@
 package com.maltesepu.service;
 
-import com.maltesepu.dto.Customer;
 import com.maltesepu.dto.OrderLineResponse;
 import com.maltesepu.dto.OrderResponse;
 import com.maltesepu.dto.Product;
@@ -9,10 +8,10 @@ import com.maltesepu.entity.OrderLine;
 import com.maltesepu.repository.OrderRepo;
 import com.maltesepu.webclient.CustomerClient;
 import com.maltesepu.webclient.ProductClient;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -23,9 +22,6 @@ public class OrderService {
 
     @Autowired
     private OrderRepo orderRepo;
-
-//    @Autowired
-//    private RestTemplate restTemplate;
 
     @Autowired
     private CustomerClient customerClient;
@@ -40,6 +36,7 @@ public class OrderService {
         return orderRepo.save(order);
     }
 
+    @CircuitBreaker(name = "customerService", fallbackMethod = "fallbackFindCustomerById")
     public OrderResponse findById(Long id) {
         Optional<Order> optOrder = orderRepo.findById(id);
         if (!optOrder.isPresent()) {
@@ -62,6 +59,10 @@ public class OrderService {
         }
 
         return response;
+    }
+
+    private OrderResponse fallbackFindCustomerById(Long id, Throwable throwable) {
+        return new OrderResponse();
     }
 
     public OrderResponse findByOrderNumber(String orderNumber) {
@@ -87,13 +88,4 @@ public class OrderService {
 
         return response;
     }
-
-//    public Customer findCustomerById(Long id) {
-//        return restTemplate.getForObject("http://CUSTOMER-SERVICE/api/customers/" + id, Customer.class);
-//    }
-//
-//    public Product findProductById(Long id) {
-//        return restTemplate.getForObject("http://PRODUCT-SERVICE/api/products/" + id, Product.class);
-//    }
-
 }
